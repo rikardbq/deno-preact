@@ -1,11 +1,16 @@
 import { HandlerContext } from "fresh/server.ts";
 
-import { getQueryParams } from "../../util.ts";
+import { getQueryParams, streamSong } from "../../util.ts";
 
-export const handler = (req: Request, _ctx: HandlerContext): Response => {
+export const handler = async (
+  req: Request,
+  _ctx: HandlerContext,
+): Promise<Response> => {
+  const song = getQueryParams(req.url).get("song") ?? "";
+  const response = await streamSong(req, song);
 
-  const song = getQueryParams(req.url).get("song");
-  
-  const body = song;
-  return new Response(body);
+  return new Response(response?.body, {
+    status: response?.status,
+    headers: response?.headers,
+  });
 };
